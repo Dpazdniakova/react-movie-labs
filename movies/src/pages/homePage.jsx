@@ -15,6 +15,7 @@ const HomePage = (props) => {
     .filter((m) => {
       return m.title.toLowerCase().search(nameFilter.toLowerCase()) !== -1;
     })
+    // filter returns the callback on each search of a given string in each movie title ( subtring found or not found)
     .filter((m) => {
       return genreId > 0 ? m.genre_ids.includes(genreId) : true;
     });
@@ -23,6 +24,7 @@ const HomePage = (props) => {
     if (type === "name") setNameFilter(value);
     else setGenreFilter(value);
   };
+
 
   useEffect(() => {
     fetch( `https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&language=en-US&include_adult=false&page=1`)

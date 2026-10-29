@@ -22,7 +22,8 @@ const formControl =
 export default function FilterMoviesCard(props) {
 
   const [genres, setGenres] = useState([{ id: '0', name: "All" }])
-
+  
+  // call the endpoint to see the current array of genres
     useEffect(() => {
     fetch(
       "https://api.themoviedb.org/3/genre/movie/list?api_key=" +
