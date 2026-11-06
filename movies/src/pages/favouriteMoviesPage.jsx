@@ -14,8 +14,8 @@ const FavoriteMoviesPage = () => {
   const favoriteMovieQueries = useQueries({
     queries: movieIds.map((movieId) => {
       return {
-        queryKey: ['movie', { id: movieId }],
-        queryFn: getMovie,
+        queryKey: ['movie', movieId],
+        queryFn: () => getMovie(movieId),
       }
     })
   });
@@ -27,10 +27,10 @@ const FavoriteMoviesPage = () => {
     return <Spinner />;
   }
 
-  const movies = favoriteMovieQueries.map((q) => {
-    q.data.genre_ids = q.data.genres.map(g => g.id) // flattening genres into a genre_ids array
-    return q.data
-  });
+  const movies = favoriteMovieQueries.map((q) => ({
+    ...q.data,
+    genre_ids: q.data.genres.map((g) => g.id),
+  })); //create a new object instead of using cached object
 
    return (
     <PageTemplate

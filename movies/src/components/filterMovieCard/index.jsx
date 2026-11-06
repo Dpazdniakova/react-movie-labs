@@ -24,7 +24,8 @@ export default function FilterMoviesCard(props) {
 
  const { data, error, isPending, isError } = useQuery({
     queryKey: ['genres'],
-    queryFn: getGenres,
+    queryFn: () => getGenres(),
+    staleTime: Infinity, //genres dont change
   });
 
   if (isPending) {
@@ -34,10 +35,7 @@ export default function FilterMoviesCard(props) {
   if (isError) {
     return <h1>{error.message}</h1>;
   }
-  const genres = data.genres;
-  if (genres[0].name !== "All"){
-    genres.unshift({ id: "0", name: "All" });
-  }
+  const genres = [{ id: "0", name: "All" }, ...data.genres];  // leaving the original cache genres untouched
 
   const handleChange = (e, type, value) => {
     e.preventDefault()
