@@ -52,6 +52,9 @@ const styles = {
   submit: {
     marginRight: 2,
   },
+  buttons: {
+    marginTop: 2,
+  },
   snack: {
     width: "50%",
     "& > * ": {
@@ -83,7 +86,7 @@ const ReviewForm = ({ movie }) => {
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm(defaultValues);
+  } = useForm({ defaultValues });
 
   const handleRatingChange = (event) => {
     setRating(event.target.value);
@@ -119,7 +122,7 @@ const ReviewForm = ({ movie }) => {
         </MuiAlert>
       </Snackbar>
 
-      <form sx={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+      <Box component="form" sx={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
         <Controller
           name="author"
           control={control}
@@ -221,7 +224,7 @@ const ReviewForm = ({ movie }) => {
             Reset
           </Button>
         </Box>
-      </form>
+      </Box>
     </Box>
   );
 };

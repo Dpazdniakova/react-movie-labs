@@ -1,4 +1,3 @@
-import {useState, useEffect}  from "react";
 import { useParams } from 'react-router';
 import MovieDetails from "../components/movieDetails/";
 import PageTemplate from "../components/templateMoviePage";
