@@ -6,10 +6,8 @@ export default function CircularIndeterminate() {
     <Box sx={{
         display: 'flex',
         justifyContent: "center",
-        '& > * + *': {
-          marginLeft: '2em',
-        }}}>
-      <CircularProgress />
+        padding: 6,
+      }}>
       <CircularProgress />
     </Box>
   );

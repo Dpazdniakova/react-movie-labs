@@ -7,8 +7,9 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CalendarIcon from "@mui/icons-material/CalendarTodayTwoTone";
-import StarRateIcon from "@mui/icons-material/StarRate";
-import Grid from "@mui/material/Grid";
+import Rating from "@mui/material/Rating";
+import Stack from "@mui/material/Stack";
+import Tooltip from "@mui/material/Tooltip";
 import img from '../../images/film-poster-placeholder.png'
 import { Link } from "react-router";
 import Avatar from '@mui/material/Avatar';
@@ -26,55 +27,65 @@ export default function MovieCard({ movie, action = () => null }) {
 
 
   return (
-    <Card>
-      <CardHeader 
+    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <CardHeader
           avatar={
           movie.favorite ? (
-            <Avatar sx={{ backgroundColor: 'red' }}>
+            <Avatar sx={{ bgcolor: "error.main" }}>
               <FavoriteIcon />
             </Avatar>
           ) : null
         }
         title={
-          <Typography variant="h5" component="p">
-            {movie.title}{" "}
-          </Typography>
+          <Tooltip title={movie.title}>
+            <Typography variant="h6" component="p" noWrap>
+              {movie.title}
+            </Typography>
+          </Tooltip>
         }
       />
       <CardMedia
-        sx={{ height: 500 }}
+        sx={{ height: 350 }}
         image={
           movie.poster_path
             ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
             : img
         }
       />
-      <CardContent>
-        <Grid container>
-          <Grid size={{xs: 6}}>
-            <Typography variant="h6" component="p">
-              <CalendarIcon fontSize="small" />
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={1}
+        >
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <CalendarIcon fontSize="small" color="primary" />
+            <Typography variant="body2" color="text.secondary">
               {movie.release_date}
             </Typography>
-          </Grid>
-          <Grid size={{xs: 6}}>
-            <Typography variant="h6" component="p">
-              <StarRateIcon fontSize="small" />
-              {"  "} {movie.vote_average}{" "}
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Rating
+              value={movie.vote_average / 2}
+              precision={0.1}
+              size="small"
+              readOnly
+            />
+            <Typography variant="body2" color="text.secondary">
+              {movie.vote_average?.toFixed(1)}
             </Typography>
-          </Grid>
-        </Grid>
+          </Stack>
+        </Stack>
       </CardContent>
-      <CardActions disableSpacing>
-      
+      <CardActions disableSpacing sx={{ justifyContent: "space-between" }}>
         {action(movie)}
-      
+
         <Link to={`/movies/${movie.id}`}>
           <Button variant="outlined" size="medium" color="primary">
             More Info ...
           </Button>
         </Link>
-        
       </CardActions>
 
     </Card>
