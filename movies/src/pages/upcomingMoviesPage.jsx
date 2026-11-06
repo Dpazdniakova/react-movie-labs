@@ -1,13 +1,18 @@
+import { useState } from "react";
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import PageTemplate from '../components/templateMovieListPage'
 import { getUpcomingMovies } from "../api/tmdb-api";
-import { useQuery } from '@tanstack/react-query';
+import Paginator from '../components/paginator';
 import Spinner from '../components/spinner';
 import AddToPlaylistIcon from "../components/cardIcons/addToWatchLater";
 
 const UpcomingPage = () => {
-  const { data, error, isPending, isError } = useQuery({
-    queryKey: ['upcoming'],
-    queryFn: () => getUpcomingMovies(),
+  const [page, setPage] = useState(1);
+
+  const { data, error, isPending, isError, isPlaceholderData } = useQuery({
+    queryKey: ['upcoming', { page }],
+    queryFn: () => getUpcomingMovies(page),
+    placeholderData: keepPreviousData,
   });
 
   if (isPending) {
@@ -27,6 +32,14 @@ const UpcomingPage = () => {
       action={(movie) => {
         return <AddToPlaylistIcon movie={movie} />
       }}
+      pagination={
+        <Paginator
+          count={Math.min(data.total_pages, 500)}
+          page={page}
+          onChange={setPage}
+          disabled={isPlaceholderData}
+        />
+      }
     />
   );
 };

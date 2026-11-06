@@ -20,12 +20,20 @@ const get = async (path, params = {}) => {
   return response.json();
 };
 
-export const getDiscoverMovies = () =>
-  get("/discover/movie", { include_adult: false, include_video: false });
+// TMDB has 500 pages total
+const safePage = (page) => Math.min(Math.max(Number(page) || 1, 1), 500);
+
+export const getDiscoverMovies = ({ page = 1 } = {}) =>
+  get("/discover/movie", {
+    include_adult: false,
+    include_video: false,
+    page: safePage(page),
+  });
 
 export const getGenres = () => get("/genre/movie/list");
 
-export const getUpcomingMovies = () => get("/movie/upcoming");
+export const getUpcomingMovies = (page = 1) =>
+  get("/movie/upcoming", { page: safePage(page) });
 
 export const getMovie = (id) => get(`/movie/${id}`);
 
