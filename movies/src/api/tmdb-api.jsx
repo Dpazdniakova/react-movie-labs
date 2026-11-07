@@ -84,3 +84,9 @@ export const getMovie = (id) => get(`/movie/${id}`);
 export const getMovieImages = (id) => get(`/movie/${id}/images`);
 
 export const getMovieReviews = (id) => get(`/movie/${id}/reviews`);
+
+export const getTopRatedMovies = (page = 1) =>
+  get("/movie/top_rated", { page: safePage(page) });
+
+export const getNowPlayingMovies = (page = 1) =>
+  get("/movie/now_playing", { page: safePage(page) });
