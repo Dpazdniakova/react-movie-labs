@@ -1,29 +1,26 @@
-
-import Card from "@mui/material/Card";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
+import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
-import SearchIcon from "@mui/icons-material/Search";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import img from '../../images/pexels-dziana-hasanbekava-5480827.jpg'
+import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
+import Slider from "@mui/material/Slider";
+import Button from "@mui/material/Button";
+import { useQuery } from "@tanstack/react-query";
 import { getGenres } from "../../api/tmdb-api";
-import { useQuery } from '@tanstack/react-query';
-import Spinner from '../spinner';
+import Spinner from "../spinner";
 
-const formControl =
-  {
-    margin: 1,
-    minWidth: "90%",
-  };
+const sort_options = [
+  { value: "popularity.desc", label: "Popularity" },
+  { value: "vote_average.desc", label: "Rating" },
+  { value: "release_date.desc", label: "Newest" },
+  { value: "title.asc", label: "Title A-Z" },
+];
 
-export default function FilterMoviesCard(props) {
+const current_year = new Date().getFullYear();
+const years = Array.from({ length: 46 }, (_, i) => current_year + 1 - i);
 
- const { data, error, isPending, isError } = useQuery({
-    queryKey: ['genres'],
+export default function FilterMoviesCard({ filters, onChange, onReset, mode }) {
+  const { data, error, isPending, isError } = useQuery({
+    queryKey: ["genres"],
     queryFn: () => getGenres(),
     staleTime: Infinity, //genres dont change
   });
@@ -35,59 +32,94 @@ export default function FilterMoviesCard(props) {
   if (isError) {
     return <h1>{error.message}</h1>;
   }
-  const genres = [{ id: "0", name: "All" }, ...data.genres];  // leaving the original cache genres untouched
-
-  const handleChange = (e, type, value) => {
-    e.preventDefault()
-    props.onUserInput(type, value)
-  };
-  const handleTextChange = e => {
-    handleChange(e, "name", e.target.value)
-  }
-  const handleGenreChange = e => {
-    handleChange(e, "genre", e.target.value)
-  };
 
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <Typography variant="h5" component="h1">
-          <SearchIcon fontSize="large" />
-          Filter the movies.
-        </Typography>
+    <Grid container spacing={2} alignItems="center">
+      <Grid size={{ xs: 12, md: 3 }}>
         <TextField
-          sx={{...formControl}}
-          id="filled-search"
-          label="Search field"
+          fullWidth
+          size="small"
           type="search"
-          variant="filled"
-          value={props.titleFilter}
-          onChange={handleTextChange}
+          label={mode === "server" ? "Search movies" : "Filter by title"}
+          value={filters.title ?? ""}
+          onChange={(e) => onChange("title", e.target.value)}
         />
-        <FormControl sx={{...formControl}}>
-          <InputLabel id="genre-label">Genre</InputLabel>
-          <Select
-            labelId="genre-label"
-            id="genre-select"
-              defaultValue=""
-            value={props.genreFilter}
-            onChange={handleGenreChange}
-          >
-            {genres.map((genre) => {
-              return (
-                <MenuItem key={genre.id} value={genre.id}>
-                  {genre.name}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-      </CardContent>
-      <CardMedia
-        sx={{ height: 300 }}
-        image={img}
-        title="Filter"
-      />
-    </Card>
+      </Grid>
+
+      <Grid size={{ xs: 6, md: 2 }}>
+        <TextField
+          select
+          fullWidth
+          size="small"
+          label="Genre"
+          value={filters.genre ?? ""}
+          onChange={(e) => onChange("genre", e.target.value)}
+        >
+          <MenuItem value="">All genres</MenuItem>
+          {data.genres.map((genre) => (
+            <MenuItem key={genre.id} value={genre.id}>
+              {genre.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+
+      <Grid size={{ xs: 6, md: 2 }}>
+        <TextField
+          select
+          fullWidth
+          size="small"
+          label="Year"
+          value={filters.year ?? ""}
+          onChange={(e) => onChange("year", e.target.value)}
+        >
+          <MenuItem value="">Any year</MenuItem>
+          {years.map((year) => (
+            <MenuItem key={year} value={year}>
+              {year}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+
+      <Grid size={{ xs: 6, md: 2 }}>
+        <TextField
+          select
+          fullWidth
+          size="small"
+          label="Sort by"
+          value={filters.sortBy ?? ""}
+          onChange={(e) => onChange("sortBy", e.target.value)}
+        >
+          <MenuItem value="">Default</MenuItem>
+          {sort_options.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+
+      <Grid size={{ xs: 6, md: 2 }}>
+        <Typography variant="caption" color="text.secondary">
+          Min rating: {filters.minRating ?? "any"}
+        </Typography>
+        <Slider
+          size="small"
+          min={0}
+          max={10}
+          step={0.5}
+          valueLabelDisplay="auto"
+          value={Number(filters.minRating) || 0}
+          onChange={(e, value) => onChange("minRating", value === 0 ? "" : value)}
+        />
+      </Grid>
+
+      <Grid size={{ xs: 6, md: 1 }}>
+        <Button fullWidth size="small" onClick={onReset}>
+          Clear
+        </Button>
+      </Grid>
+    </Grid>
   );
 }
