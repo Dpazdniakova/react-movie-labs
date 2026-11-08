@@ -17,14 +17,13 @@ import { useContext } from "react";
 import { MoviesContext } from "../../contexts/moviesContext";
 
 export default function MovieCard({ movie, action = () => null }) {
-   const { favorites } = useContext(MoviesContext);
+  const { favorites } = useContext(MoviesContext);
 
-  if (favorites.find((id) => id === movie.id)) {
+if (favorites.find((id) => id === movie.id)) {
     movie.favorite = true;
   } else {
     movie.favorite = false
   }
-
 
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>

@@ -8,6 +8,7 @@ import SiteHeader from './components/siteHeader'
 import UpcomingMoviesPage from "./pages/upcomingMoviesPage";
 import TopRatedMoviesPage from "./pages/topRatedMoviesPage";
 import NowPlayingMoviesPage from "./pages/nowPlayingMoviesPage";
+import MustWatchMoviesPage from "./pages/mustWatchMoviesPage";
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import MoviesContextProvider from "./contexts/moviesContext";
@@ -33,12 +34,13 @@ const App = () => {
     <CssBaseline />
     <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <SiteHeader />
-       <MoviesContextProvider>
+       <SiteHeader />
+      <MoviesContextProvider>
       <Routes>
         <Route path="/reviews/form" element={ <AddMovieReviewPage /> } />
         <Route path="/reviews/:id" element={ <MovieReviewPage /> } />
         <Route path="/movies/favorites" element={<FavoriteMoviesPage />} />
+        <Route path="/movies/mustwatch" element={<MustWatchMoviesPage />} />
         <Route path="/movies/:id" element={<MoviePage />} />
         <Route path="/" element={<HomePage />} />
         <Route path="*" element={ <Navigate to="/" /> } />

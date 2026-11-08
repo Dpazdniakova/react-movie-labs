@@ -4,7 +4,7 @@ import PageTemplate from '../components/templateMovieListPage'
 import { getNowPlayingMovies } from "../api/tmdb-api";
 import Paginator from '../components/paginator';
 import Spinner from '../components/spinner';
-import AddToFavoritesIcon from '../components/cardIcons/addToFavorites';
+import AddToPlaylistIcon from '../components/cardIcons/addToWatchLater';
 
 const NowPlayingPage = () => {
   const [page, setPage] = useState(1);
@@ -30,7 +30,7 @@ const NowPlayingPage = () => {
       title='Now Playing'
       movies={movies}
       action={(movie) => {
-        return <AddToFavoritesIcon movie={movie} />
+        return <AddToPlaylistIcon movie={movie} />
       }}
       pagination={
         <Paginator
