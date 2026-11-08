@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import Drawer from "@mui/material/Drawer";
 import MovieReviews from "../movieReviews"
+import MovieCast from "../movieCast"
 
 
 const root = {
@@ -74,6 +75,9 @@ const [drawerOpen, setDrawerOpen] = useState(false);
         ))}
 
       </Paper>
+      
+      <MovieCast movie={movie} />
+
           <Fab
         color="secondary"
         variant="extended"

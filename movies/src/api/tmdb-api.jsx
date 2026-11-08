@@ -1,101 +1,101 @@
-export const getMovies = () => {
-  return fetch(
-    `https://api.themoviedb.org/3/discover/movie?api_key=${import.meta.env.VITE_TMDB_KEY}&language=en-US&include_adult=false&include_video=false&page=1`
-  ).then((response) => {
-    if (!response.ok) {
-      return response.json().then((error) => {
-        throw new Error(error.status_message || "Something went wrong");
-      });
-    }
-    return response.json();
-  })
-  .catch((error) => {
-      throw error
+// Endpoints take plain arguments rather than react-query's context object.
+// Call sites wrap them as queryFn: () => fn(arg) — this decouples the data
+// layer from react-query so functions work in any context, and avoids coupling
+// the query key shape to the function signature ( important for
+// multi-parameter endpoints like search and discover).
+
+const BASE = "https://api.themoviedb.org/3";
+
+const get = async (path, params = {}) => {
+  const qs = new URLSearchParams({
+    api_key: import.meta.env.VITE_TMDB_KEY,
+    language: "en-US",
+    ...params,
   });
+  const response = await fetch(`${BASE}${path}?${qs}`);
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.status_message || "Something went wrong");
+  }
+  return response.json();
+};
+
+// TMDB has 500 pages total
+const safePage = (page) => Math.min(Math.max(Number(page) || 1, 1), 500);
+
+// components never handle vote_average.gte, 
+// if there is a value for any of the filters it gets spread with a correct parameter name otherwise its and empty object
+// not undefined 
+export const getDiscoverMovies = ({ page = 1, genre, year, minRating, sortBy } = {}) => {
+  const params = {
+    include_adult: false,
+    include_video: false,
+    page: safePage(page),
+  };
+
+  if (genre) params.with_genres = genre;
+  if (year) params.primary_release_year = year;
+  if (minRating) params["vote_average.gte"] = minRating;
+  if (sortBy) params.sort_by = sortBy;
+
+  return get("/discover/movie", params);
 };
 
 
-export const getMovie = (args) => {
-  //console.log(args)
-  const [, idPart] = args.queryKey;
-  const { id } = idPart;
-  return fetch(
-    `https://api.themoviedb.org/3/movie/${id}?api_key=${import.meta.env.VITE_TMDB_KEY}`
-  ).then((response) => {
-    if (!response.ok) {
-      return response.json().then((error) => {
-        throw new Error(error.status_message || "Something went wrong");
-      });
-    }
-    return response.json();
-  })
-  .catch((error) => {
-    throw error
- });
+// used to query the title
+export const searchMovies = ({ query, page = 1, year }) => {
+  const params = {
+    query,
+    page: safePage(page),
+    include_adult: false,
+  };
+
+  if (year) params.primary_release_year = year;
+
+  return get("/search/movie", params);
 };
 
+// Solves the issue of filtering only one page at a time
+export const getSearchPool = async ({ query, year }) => {
+  const first = await searchMovies({ query, year, page: 1 }); // get the title query first first page, also accepts the year
+  const pagesToFetch = Math.min(first.total_pages, 20);// caps requested pages to no higher than 20
 
-  export const getGenres = () => {
-    return fetch(
-      "https://api.themoviedb.org/3/genre/movie/list?api_key=" +
-        import.meta.env.VITE_TMDB_KEY +
-        "&language=en-US"
-    ).then( (response) => {
-      if (!response.ok) {
-        return response.json().then((error) => {
-          throw new Error(error.status_message || "Something went wrong");
-        });
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      throw error
-   });
-  };
+  const requests = [];
+  for (let page = 2; page <= pagesToFetch; page++) {
+    requests.push(searchMovies({ query, year, page }));
+  }
+  const rest = await Promise.all(requests);
 
-  export const getMovieImages = ({ queryKey }) => {
-    const [, idPart] = queryKey;
-    const { id } = idPart;
-    return fetch(
-      `https://api.themoviedb.org/3/movie/${id}/images?api_key=${import.meta.env.VITE_TMDB_KEY}`
-    ).then( (response) => {
-      if (!response.ok) {
-        return response.json().then((error) => {
-          throw new Error(error.status_message || "Something went wrong");
-        });
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      throw error
-   });
-  };
+  let results = first.results;
+  for (const response of rest) {
+    results = results.concat(response.results); // return results from ALL pages
+  }
 
-
-  export const getMovieReviews = ({ queryKey }) => {
-    const [, idPart] = queryKey;
-    const { id } = idPart;
-    return fetch(
-      `https://api.themoviedb.org/3/movie/${id}/reviews?api_key=${import.meta.env.VITE_TMDB_KEY}`
-    ).then( (response) => {
-      if (!response.ok) {
-        return response.json().then((error) => {
-          throw new Error(error.status_message || "Something went wrong");
-        });
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      throw error
-   });
-  };
-
-
-export const getUpcomingMovies = () => {
-  return fetch(
-    `https://api.themoviedb.org/3/movie/upcoming?api_key=${import.meta.env.VITE_TMDB_KEY}&language=en-US&page=1`
-  )
-    .then(res => res.json())
-    .then(json => json.results);
+  return { results };
 };
 
+export const getGenres = () => get("/genre/movie/list");
+
+export const getUpcomingMovies = (page = 1) =>
+  get("/movie/upcoming", { page: safePage(page) });
+
+export const getMovie = (id) => get(`/movie/${id}`);
+
+export const getMovieImages = (id) => get(`/movie/${id}/images`);
+
+export const getMovieReviews = (id) => get(`/movie/${id}/reviews`);
+
+export const getTopRatedMovies = (page = 1) =>
+  get("/movie/top_rated", { page: safePage(page) });
+
+export const getNowPlayingMovies = (page = 1) =>
+  get("/movie/now_playing", { page: safePage(page) });
+
+export const getMovieCredits = (id) => get(`/movie/${id}/credits`);
+
+export const getPerson = (id) => get(`/person/${id}`);
+
+export const getPersonMovieCredits = (id) => get(`/person/${id}/movie_credits`);
+
+export const getPopularPeople = (page = 1) =>
+  get("/person/popular", { page: safePage(page) });

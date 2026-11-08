@@ -1,37 +1,46 @@
-import { useState, useEffect } from "react";
-import PageTemplate  from '../components/templateMovieListPage'
+import { useState } from "react";
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import PageTemplate from '../components/templateMovieListPage'
 import { getUpcomingMovies } from "../api/tmdb-api";
+import Paginator from '../components/paginator';
+import Spinner from '../components/spinner';
 import AddToPlaylistIcon from "../components/cardIcons/addToWatchLater";
 
 const UpcomingPage = () => {
-  const [movies, setMovies] = useState([]);
-  const favorites = movies.filter(m => m.favorite)
-  localStorage.setItem('favorites', JSON.stringify(favorites))
+  const [page, setPage] = useState(1);
 
-  const addToFavorites = (movieId) => {
-    const updatedMovies = movies.map((m) =>
-      m.id === movieId ? { ...m, favorite: true } : m
-    );
-    setMovies(updatedMovies);
-  };
+  const { data, error, isPending, isError, isPlaceholderData } = useQuery({
+    queryKey: ['upcoming', { page }],
+    queryFn: () => getUpcomingMovies(page),
+    placeholderData: keepPreviousData,
+  });
 
-  useEffect(() => {
-      getUpcomingMovies()
-      .then((movies) => {
-        setMovies(movies);
-      });
-  }, []);
+  if (isPending) {
+    return <Spinner />;
+  }
+
+  if (isError) {
+    return <h1>{error.message}</h1>;
+  }
+
+  const movies = data.results;
 
   return (
     <PageTemplate
       title='Upcoming Movies'
       movies={movies}
-      selectFavorite={addToFavorites}
       action={(movie) => {
         return <AddToPlaylistIcon movie={movie} />
       }}
+      pagination={
+        <Paginator
+          count={Math.min(data.total_pages, 500)}
+          page={page}
+          onChange={setPage}
+          disabled={isPlaceholderData}
+        />
+      }
     />
   );
 };
 export default UpcomingPage;
-

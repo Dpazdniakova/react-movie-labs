@@ -1,4 +1,3 @@
-import {useState, useEffect}  from "react";
 import { useParams } from 'react-router';
 import MovieDetails from "../components/movieDetails/";
 import PageTemplate from "../components/templateMoviePage";
@@ -6,12 +5,13 @@ import { getMovie } from '../api/tmdb-api'
 import { useQuery } from '@tanstack/react-query';
 import Spinner from '../components/spinner'
 
-const MoviePage = (props) => {
+const MoviePage = () => {
   const { id } = useParams();
-  
+  const movieId = Number(id);
+
   const { data: movie, error, isPending, isError  } = useQuery({
-    queryKey: ['movie', {id: id}],
-    queryFn: getMovie,
+    queryKey: ['movie', movieId],
+    queryFn: () => getMovie(movieId),
   })
 
   if (isPending) {

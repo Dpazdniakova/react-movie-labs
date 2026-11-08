@@ -4,18 +4,22 @@ import { MoviesContext } from "../contexts/moviesContext";
 import { useQueries } from "@tanstack/react-query";
 import { getMovie } from "../api/tmdb-api";
 import Spinner from '../components/spinner'
+import FilterCard from "../components/filterMovieCard";
+import useFilters from "../hooks/useFilters";
+import { applyFilters } from "../util";
 import RemoveFromFavorites from "../components/cardIcons/removeFromFavorites";
 import WriteReview from "../components/cardIcons/writeReview";
 
 const FavoriteMoviesPage = () => {
   const {favorites: movieIds } = useContext(MoviesContext);
+  const { filters, handleChange, reset } = useFilters();
 
   // Create an array of queries and run in parallel.
   const favoriteMovieQueries = useQueries({
     queries: movieIds.map((movieId) => {
       return {
-        queryKey: ['movie', { id: movieId }],
-        queryFn: getMovie,
+        queryKey: ['movie', movieId],
+        queryFn: () => getMovie(movieId),
       }
     })
   });
@@ -27,12 +31,12 @@ const FavoriteMoviesPage = () => {
     return <Spinner />;
   }
 
-  const movies = favoriteMovieQueries.map((q) => {
-    q.data.genre_ids = q.data.genres.map(g => g.id) // flattening genres into a genre_ids array
-    return q.data
-  });
+  const favorites = favoriteMovieQueries.map((q) => ({
+    ...q.data,
+    genre_ids: q.data.genres.map((g) => g.id),
+  })); //create a new object instead of using cached object
 
-  const toDo = () => true;
+  const movies = applyFilters(favorites, filters);
 
    return (
     <PageTemplate
@@ -46,6 +50,13 @@ const FavoriteMoviesPage = () => {
           </>
         );
       }}
+      controls={
+        <FilterCard
+          filters={filters}
+          onChange={handleChange}
+          onReset={reset}
+        />
+      }
     />
   );
 

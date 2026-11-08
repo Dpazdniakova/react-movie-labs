@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import MovieHeader from "../headerMovie";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 import { getMovieImages } from "../../api/tmdb-api";
@@ -9,8 +9,8 @@ import Spinner from '../spinner'
 
 const TemplateMoviePage = ({ movie, children }) => {
     const { data, error, isPending, isError } = useQuery({
-    queryKey: ['images', { id: movie.id }],
-    queryFn: getMovieImages,
+    queryKey: ['images', movie.id],
+    queryFn: () => getMovieImages(movie.id),
   });
 
   if (isPending) {
@@ -30,7 +30,7 @@ const TemplateMoviePage = ({ movie, children }) => {
 
       <Grid container spacing={5} style={{ padding: "15px" }}>
         <Grid size={{xs: 3}}>
-          <div sx={{
+          <Box sx={{
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "space-around",
@@ -50,7 +50,7 @@ const TemplateMoviePage = ({ movie, children }) => {
                     </ImageListItem>
                 ))}
             </ImageList>
-          </div>
+          </Box>
         </Grid>
 
         <Grid size={{xs: 9}}>
