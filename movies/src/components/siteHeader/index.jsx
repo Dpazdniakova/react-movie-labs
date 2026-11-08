@@ -31,6 +31,7 @@ const SiteHeader = () => {
     { label: "Upcoming", path: "/movies/upcoming" },
     { label: "Top Rated", path: "/movies/toprated" },
     { label: "Now Playing", path: "/movies/nowplaying" },
+    { label: "Actors", path: "/people" },
   ];
 
   // close the menu and navigate to chosen page

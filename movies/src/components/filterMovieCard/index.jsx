@@ -18,7 +18,7 @@ const sort_options = [
 const current_year = new Date().getFullYear();
 const years = Array.from({ length: 46 }, (_, i) => current_year + 1 - i);
 
-export default function FilterMoviesCard({ filters, onChange, onReset, mode }) {
+export default function FilterMoviesCard({ filters, onChange, onReset }) {
   const { data, error, isPending, isError } = useQuery({
     queryKey: ["genres"],
     queryFn: () => getGenres(),
@@ -40,7 +40,7 @@ export default function FilterMoviesCard({ filters, onChange, onReset, mode }) {
           fullWidth
           size="small"
           type="search"
-          label={mode === "server" ? "Search movies" : "Filter by title"}
+          label="Search by title"
           value={filters.title ?? ""}
           onChange={(e) => onChange("title", e.target.value)}
         />

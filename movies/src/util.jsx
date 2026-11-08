@@ -39,3 +39,7 @@ export const applyFilters = (movies, { title, genre, year, minRating, sortBy } =
   const comparator = sortComparators[sortBy]; // get the appropriate function 
   return comparator ? [...result].sort(comparator) : result;
 };
+
+// fallback for multiple components for the actor picture
+export const profileImage = (path, size = "w185") =>
+  path ? `https://image.tmdb.org/t/p/${size}${path}` : null;

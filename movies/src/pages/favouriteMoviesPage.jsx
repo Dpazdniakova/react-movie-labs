@@ -52,7 +52,6 @@ const FavoriteMoviesPage = () => {
       }}
       controls={
         <FilterCard
-          mode="client"
           filters={filters}
           onChange={handleChange}
           onReset={reset}

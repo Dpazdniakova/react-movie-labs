@@ -9,7 +9,7 @@ import useFilters from '../hooks/useFilters';
 import { applyFilters } from '../util';
 import AddToFavoritesIcon from '../components/cardIcons/addToFavorites'
 
-const per_page = 20;
+const per_page= 20;
 
 // no title fetches by /discover/movie, every filter and the paging server-side
 // title, no filters by /search/movie, server-side paging through all matches
@@ -25,7 +25,7 @@ const HomePage = () => {
   const discover = useQuery({
     queryKey: ['discover', { page, genre, year, minRating, sortBy }],
     queryFn: () => getDiscoverMovies({ page, genre, year, minRating, sortBy }),
-    enabled: !isSearching,
+    enabled: !isSearching, // should fetch or shouldn't?
     placeholderData: keepPreviousData,
   });
 
@@ -43,7 +43,7 @@ const HomePage = () => {
     placeholderData: keepPreviousData,
   });
 
-  let active;
+  let active; // the data to show NOW
   if (needsPool) active = searchPooled;
   else if (isSearching) active = searchPaged;
   else active = discover;
@@ -87,7 +87,6 @@ const HomePage = () => {
         }}
         controls={
           <FilterCard
-            mode="server"
             filters={filters}
             onChange={changeFilter}
             onReset={resetFilters}

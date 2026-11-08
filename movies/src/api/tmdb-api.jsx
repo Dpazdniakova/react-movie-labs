@@ -90,3 +90,12 @@ export const getTopRatedMovies = (page = 1) =>
 
 export const getNowPlayingMovies = (page = 1) =>
   get("/movie/now_playing", { page: safePage(page) });
+
+export const getMovieCredits = (id) => get(`/movie/${id}/credits`);
+
+export const getPerson = (id) => get(`/person/${id}`);
+
+export const getPersonMovieCredits = (id) => get(`/person/${id}/movie_credits`);
+
+export const getPopularPeople = (page = 1) =>
+  get("/person/popular", { page: safePage(page) });
